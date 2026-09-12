@@ -108,9 +108,16 @@ Want a real public URL instead of `localhost`? See **`DEPLOY.md`** — a free, n
 - **Dashboard comparison table** ("Listing performance", host dashboard, `#performance`) — the same four numbers for every listing a host owns, in one table sorted by views, so it's easy to see at a glance which listings are getting looked at and which of those views are turning into actual conversations, not just per-listing in isolation.
 - Everything here is computed live from `listing_views` / `listing_inquiries` / `applications` / `bookings` on each page load — there's no separate analytics pipeline, batch job, or third-party tracker involved.
 
+## Phase 10 — Apple-style minimalist redesign + dark mode
+
+- **Full visual redesign**, replacing the earlier warm/serif theme with a minimalist look inspired by iOS/iPadOS/macOS: the system font (SF Pro via `-apple-system`, no external font files), a neutral gray/white surface, one blue accent color, pill-shaped buttons, a segmented-control style for the vertical tabs, rounded "grouped list" cards, soft shadows, and small hover/press animations (card lift, button scale, a blurred/translucent nav bar). No new dependencies — same zero-`npm install` stack as always, just `public/styles.css` and a handful of view templates.
+- **Real dark mode** — a sun/moon toggle button in the nav (top right) flips the whole site between light and dark instantly. Defaults to following the visitor's OS/browser dark-mode setting automatically; an explicit click overrides that and is remembered per-browser via `localStorage` (`kanto-theme`), including for signed-out visitors. An inline script in `views/layout.js`'s `<head>` applies the saved choice before the page paints, so there's no light-mode flash on reload. All of this lives in CSS custom properties in `public/styles.css` (`:root` for light, `:root[data-theme="dark"]` plus a `prefers-color-scheme` media query for dark) — the same variable names the app already used (`--bg`, `--ink`, `--muted`, `--border`, etc.) just repointed to the new palette, so every view's existing inline styles picked up the new look for free.
+- **Listing photos are now vertical-based icon art, not emoji** — every stay/lease/storage listing shows a gradient "app icon" tile with a simple house/building/box glyph (`lib/format.js`'s `verticalTileClass()` / `verticalIcon()`), instead of the old free-text `photo_emoji` field. Looks finished and consistent across every card without needing real photo uploads yet. The `photo_emoji` field/column and its listing-form input are untouched (still stored, still editable) in case you want to repurpose or remove it later — it's just no longer what renders visually.
+- The one page that deliberately does **not** follow the theme: the printable QR poster (`/listings/:id/qr`) always renders as a plain white card, since it's meant to be printed on paper regardless of what theme you're browsing in.
+
 ## What's deliberately not built yet
 
-- Listing photos — still a placeholder emoji, no image upload.
+- Real listing photo uploads — cards show a vertical-based icon graphic (see Phase 10), not an actual photo of the place.
 - Reviews.
 - Real automated ID verification / background checks (Phase 4 collects a referral + consent, not an automated check — see above).
 - Admin/moderation tools (any host can currently publish instantly, with no review step).

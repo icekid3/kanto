@@ -1,5 +1,5 @@
 // views/dashboard.js — host/guest home base.
-import { escapeHtml, peso, verticalLabel, formatDate, statusPill } from '../lib/format.js';
+import { escapeHtml, peso, verticalLabel, formatDate, statusPill, verticalTileClass, verticalIcon } from '../lib/format.js';
 import { completenessChecklist } from '../lib/listingInsights.js';
 
 export function dashboardView({ user, listings = [], bookings = [], applications = [], inquiries = [], performance = [] }) {
@@ -21,7 +21,7 @@ export function dashboardView({ user, listings = [], bookings = [], applications
                   const { done, total } = completenessChecklist(l);
                   const complete = done === total;
                   return `<tr>
-                    <td><a href="/listings/${l.id}">${escapeHtml(l.title)}</a></td>
+                    <td><a href="/listings/${l.id}" class="row-title-link"><span class="row-icon ${verticalTileClass(l.vertical)}">${verticalIcon(l.vertical, 18)}</span>${escapeHtml(l.title)}</a></td>
                     <td>${verticalLabel(l.vertical)}</td>
                     <td>${escapeHtml(l.city)}</td>
                     <td>${peso(l.price_amount)}</td>

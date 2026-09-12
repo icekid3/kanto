@@ -1,5 +1,5 @@
 // views/home.js — guest-facing search / discovery page.
-import { escapeHtml, peso, priceUnitLabel, verticalLabel } from '../lib/format.js';
+import { escapeHtml, peso, priceUnitLabel, verticalLabel, verticalTileClass, verticalIcon } from '../lib/format.js';
 
 const VERTICALS = [
   { key: '', label: 'All' },
@@ -17,9 +17,9 @@ function qs(params) {
 function listingCard(l) {
   return `
   <a class="card" href="/listings/${l.id}">
-    <div class="card-photo">${l.photo_emoji || '🏷️'}</div>
+    <div class="card-photo ${verticalTileClass(l.vertical)}">${verticalIcon(l.vertical, 48)}</div>
     <div class="card-body">
-      <span class="card-vertical">${verticalLabel(l.vertical)}</span>
+      <span class="card-vertical card-vertical-${l.vertical}">${verticalLabel(l.vertical)}</span>
       <h3 class="card-title">${escapeHtml(l.title)}</h3>
       <span class="card-loc">${escapeHtml(l.city)}${l.size_label ? ' · ' + escapeHtml(l.size_label) : ''}</span>
       <div class="card-price">${peso(l.price_amount)} <small>${priceUnitLabel(l.price_unit)}</small></div>

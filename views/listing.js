@@ -1,5 +1,5 @@
 // views/listing.js — single listing detail + request-to-book form.
-import { escapeHtml, peso, priceUnitLabel, verticalLabel, statusPill } from '../lib/format.js';
+import { escapeHtml, peso, priceUnitLabel, verticalLabel, statusPill, verticalTileClass, verticalIcon } from '../lib/format.js';
 import { PAYMENT_METHODS } from '../lib/payments.js';
 import { renderCalendar } from './calendarWidget.js';
 
@@ -83,9 +83,9 @@ export function listingView({ listing, host, user, error, application, calendar,
 
   const body = `
     <div class="listing-head">
-      <div class="listing-photo">${listing.photo_emoji || '🏷️'}</div>
+      <div class="listing-photo ${verticalTileClass(listing.vertical)}">${verticalIcon(listing.vertical, 84)}</div>
       <div class="listing-main">
-        <span class="card-vertical">${verticalLabel(listing.vertical)}</span>
+        <span class="card-vertical card-vertical-${listing.vertical}">${verticalLabel(listing.vertical)}</span>
         <h1>${escapeHtml(listing.title)}</h1>
         <div class="listing-loc">
           ${escapeHtml(listing.city)}${listing.region ? ', ' + escapeHtml(listing.region) : ''}${listing.size_label ? ' · ' + escapeHtml(listing.size_label) : ''}
