@@ -247,15 +247,15 @@ main { padding-block: 32px 72px; animation: kanto-fade-in 0.35s ease both; }
 .empty-state { padding: 48px 20px; text-align: center; color: var(--muted); }
 
 /* listing detail */
-.listing-head { display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 24px; }
+.listing-head { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; margin: 4px 0 32px; }
 .listing-photo {
   flex: 0 0 168px; width: 168px; height: 168px; border-radius: 32px; background: var(--surface-2);
   display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 30px rgba(0,113,227,0.22);
 }
-.listing-main { flex: 1 1 320px; min-width: 0; }
+.listing-main { flex: 0 1 640px; min-width: 0; max-width: 640px; display: flex; flex-direction: column; align-items: center; }
 .listing-main h1 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; font-size: 1.9rem; margin: 0 0 8px; }
-.listing-loc { color: var(--muted); margin-bottom: 14px; }
-.amenity-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; padding: 0; list-style: none; }
+.listing-loc { color: var(--muted); margin-bottom: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+.amenity-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 14px 0; padding: 0; list-style: none; }
 .amenity-list li { background: var(--surface-2); color: var(--ink); font-size: 0.82rem; font-weight: 600; padding: 6px 14px; border-radius: 980px; transition: background-color 0.25s ease; }
 
 .detail-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 22px; align-items: start; }
