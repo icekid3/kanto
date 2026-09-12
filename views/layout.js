@@ -49,7 +49,10 @@ export function layout({ title, user, body, activeNav = '' }) {
     ${body}
   </main>
   <footer class="site">
-    <div class="container">Kanto — prototype, not a live marketplace yet. Placeholder name — swap it for your own brand.</div>
+    <div class="container footer-row">
+      <span>Kanto — prototype, not a live marketplace yet. Placeholder name — swap it for your own brand.</span>
+      <span class="footer-links"><a href="/terms">Terms</a><a href="/privacy">Privacy</a></span>
+    </div>
   </footer>
   <script src="/theme.js"></script>
 </body>

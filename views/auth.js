@@ -33,6 +33,7 @@ export function signupView({ error, values = {} } = {}) {
           <label><input type="radio" name="role" value="guest" ${values.role !== 'host' ? 'checked' : ''}><span>I'm a guest</span></label>
           <label><input type="radio" name="role" value="host" ${values.role === 'host' ? 'checked' : ''}><span>I'm a host</span></label>
         </div>
+        <label class="agree-terms"><input type="checkbox" name="agree_terms" value="1" ${values.agree_terms ? 'checked' : ''} required><span>I agree to the <a href="/terms" target="_blank" rel="noopener">Terms of Service</a> and <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a></span></label>
         <button class="btn btn-primary btn-block" type="submit">Create account</button>
       </form>
       <p class="foot-link">Already have an account? <a href="/login">Log in</a></p>

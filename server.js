@@ -16,6 +16,8 @@ import { homeView } from './views/home.js';
 import { listingView, bookingConfirmedView } from './views/listing.js';
 import { listingFormView } from './views/listingForm.js';
 import { loginView, signupView } from './views/auth.js';
+import { termsView } from './views/terms.js';
+import { privacyView } from './views/privacy.js';
 import { dashboardView } from './views/dashboard.js';
 import { bookingDetailView } from './views/booking.js';
 import { applicationFormView, applicationDetailView } from './views/application.js';
@@ -792,8 +794,9 @@ async function handleSignupPost(req, res) {
   try {
     if (!body.name || !body.email || !body.password) throw new Error('All fields are required.');
     if (body.password.length < 8) throw new Error('Password must be at least 8 characters.');
+    if (!body.agree_terms) throw new Error('You must agree to the Terms of Service and Privacy Policy to create an account.');
     const role = body.role === 'host' ? 'host' : 'guest';
-    const id = createUser({ name: body.name, email: body.email, password: body.password, role });
+    const id = createUser({ name: body.name, email: body.email, password: body.password, role, termsAccepted: true });
     const token = createSession(id);
     redirect(res, '/dashboard', sessionCookie(token));
   } catch (err) {
@@ -915,6 +918,9 @@ const server = http.createServer(async (req, res) => {
 
     const inquiryMessageMatch = pathname.match(/^\/inquiries\/([^/]+)\/messages$/);
     if (req.method === 'POST' && inquiryMessageMatch) return handleInquiryMessagePost(req, res, inquiryMessageMatch[1], user);
+
+    if (req.method === 'GET' && pathname === '/terms') return render(res, user, termsView());
+    if (req.method === 'GET' && pathname === '/privacy') return render(res, user, privacyView());
 
     if (req.method === 'GET' && pathname === '/login') return handleLoginGet(req, res, url);
     if (req.method === 'POST' && pathname === '/login') return handleLoginPost(req, res);
