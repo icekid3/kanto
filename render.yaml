@@ -1,0 +1,18 @@
+# render.yaml — lets Render auto-configure this as a free web service
+# (Render detects this file when you connect the repo and offers to use it
+# as a "Blueprint", pre-filling the settings below instead of you typing
+# them in by hand). See DEPLOY.md for the full walkthrough.
+services:
+  - type: web
+    name: kanto
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      # Pins the exact Node line this app has been tested against (Render's
+      # own default is newer and likely fine too, but this removes the
+      # guesswork). node:sqlite still needs --experimental-sqlite on this
+      # line -- see PHASE-NOTES.md.
+      - key: NODE_VERSION
+        value: 22.22.2

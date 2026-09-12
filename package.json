@@ -1,0 +1,14 @@
+{
+  "name": "rental-marketplace",
+  "version": "0.1.0",
+  "description": "Multi-vertical rental marketplace (short-term stays, long-term leases, storage/rentable spaces) — Phase 1 foundation.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.5.0 <23.0.0"
+  },
+  "scripts": {
+    "start": "node --experimental-sqlite server.js",
+    "seed": "node --experimental-sqlite lib/seed.js"
+  },
+  "dependencies": {}
+}
