@@ -20,7 +20,7 @@ import { termsView } from './views/terms.js';
 import { privacyView } from './views/privacy.js';
 import { dashboardView, myBookingsView, myApplicationsView, myInquiriesView } from './views/dashboard.js';
 import { bookingDetailView } from './views/booking.js';
-import { applicationFormView, applicationDetailView } from './views/application.js';
+import { applicationFormView, applicationDetailView, applicationReferralView } from './views/application.js';
 import { referenceDetailView } from './views/reference.js';
 import { inquiryFormView, inquiryDetailView } from './views/inquiry.js';
 import { qrMatrixToSvg, qrPosterView } from './views/qr.js';
@@ -565,9 +565,22 @@ async function handleApplicationDetail(req, res, id, user) {
   const { application, listing, applicant, host } = full;
   if (user.id !== application.applicant_id && user.id !== listing.host_id) return send(res, 403, 'Not your application.');
   const messages = fetchMessagesForApplication(id);
+  render(res, user, applicationDetailView({ application, listing, applicant, host, messages, viewerId: user.id }));
+}
+
+// The "View applicant's referral" button on the application detail page
+// links here -- the verified-past-landlords panel used to be shown inline
+// on that page, now it's its own page (see PHASE-NOTES.md, application
+// detail page reorg).
+async function handleApplicationReferral(req, res, id, user) {
+  if (!user) return redirect(res, `/login?next=/applications/${id}/referral`);
+  const full = fetchApplicationFull(id);
+  if (!full) return send(res, 404, 'Application not found');
+  const { application, listing, applicant } = full;
+  if (user.id !== application.applicant_id && user.id !== listing.host_id) return send(res, 403, 'Not your application.');
   const verifiedLandlords = fetchVerifiedPastLandlords(application.applicant_id, listing.host_id);
   const referenceRequests = fetchReferenceRequestsForApplication(id);
-  render(res, user, applicationDetailView({ application, listing, applicant, host, messages, viewerId: user.id, verifiedLandlords, referenceRequests }));
+  render(res, user, applicationReferralView({ application, listing, applicant, viewerId: user.id, verifiedLandlords, referenceRequests }));
 }
 
 async function handleApplicationMessagePost(req, res, id, user) {
@@ -1082,6 +1095,9 @@ const server = http.createServer(async (req, res) => {
       if (action === 'cancel') return handleBookingCancel(req, res, bookingId, user);
       if (action === 'complete') return handleBookingComplete(req, res, bookingId, user);
     }
+
+    const applicationReferralMatch = pathname.match(/^\/applications\/([^/]+)\/referral$/);
+    if (req.method === 'GET' && applicationReferralMatch) return handleApplicationReferral(req, res, applicationReferralMatch[1], user);
 
     const applicationMatch = pathname.match(/^\/applications\/([^/]+)$/);
     if (req.method === 'GET' && applicationMatch) return handleApplicationDetail(req, res, applicationMatch[1], user);

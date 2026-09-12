@@ -138,6 +138,11 @@ Want a real public URL instead of `localhost`? See **`DEPLOY.md`** — a free, n
 - **Consent wording updated** (`views/application.js`'s signup-time checkbox is on the application form, not signup) to cover both the self-reported landlord contact AND showing/using verified Kanto stay history — one checkbox, not two, per how this was scoped.
 - **What this deliberately doesn't do**: no automated background/criminal check, no notification (email/SMS/push) when a reference is requested — the past host only finds out by checking their own dashboard, and nothing here verifies identity beyond "this really is the account that had this booking" (see the account-fraud-prevention discussion in PHASE-NOTES for a separate, not-yet-built identity-verification layer — email confirmation + optional self-uploaded ID photo reviewed manually, before considering a paid KYC service).
 
+## Phase 14 — Application detail page reorg
+
+- Reworked the host/applicant-facing layout of `/applications/:id` (`views/application.js`) per a direct request: the applicant's name moved from the hero subheader into the "Screening details" box as its own row; the free-text "Message" row was removed entirely (not relocated); the right-side status tile (`.booking-box` with Status/Submitted/Decided) was removed, with its Status/Submitted/Decided rows folded into the Screening details box instead; and the Messages thread moved from the left column to the right column, in the space the status tile used to occupy.
+- **New page**: `/applications/:id/referral` (`applicationReferralView` in `views/application.js`, `handleApplicationReferral` in `server.js`) — the "Verified previous landlords on Kanto" panel from Phase 13 used to sit inline on the application page; it now lives on its own page, reached via a "View applicant's referral" button below the Messages box. Same access rules as before (only the applicant or the reviewing host can view it), same "Request reference" button behavior.
+
 ## What's deliberately not built yet
 
 - Real listing photo uploads — cards show a vertical-based icon graphic (see Phase 10), not an actual photo of the place.

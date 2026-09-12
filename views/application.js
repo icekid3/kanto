@@ -28,15 +28,17 @@ export function applicationFormView({ listing, error, values = {} } = {}) {
   return { title: 'Apply to rent', body };
 }
 
-export function applicationDetailView({ application, listing, applicant, host, messages = [], viewerId, verifiedLandlords = [], referenceRequests = [] }) {
-  const isHost = viewerId === listing.host_id;
-  const isApplicant = viewerId === application.applicant_id;
-
-  const verifiedSection = !application.consent_background_check
-    ? (isHost
-        ? `<div class="dash-section"><h2>Verified previous landlords on Kanto</h2><p style="color:var(--muted)">The applicant hasn't consented to sharing verified Kanto stay history for this application.</p></div>`
-        : '')
-    : `
+// Shared between applicationDetailView and applicationReferralView -- the
+// table of an applicant's verified, in-platform past-host history (see
+// Phase 13 in PHASE-NOTES.md). Lives on its own page now, reached via the
+// "View applicant's referral" button on the application detail page.
+function verifiedLandlordsSection({ application, applicant, isHost, verifiedLandlords, referenceRequests }) {
+  if (!application.consent_background_check) {
+    return isHost
+      ? `<div class="dash-section"><h2>Verified previous landlords on Kanto</h2><p style="color:var(--muted)">The applicant hasn't consented to sharing verified Kanto stay history for this application.</p></div>`
+      : `<div class="dash-section"><h2>Verified previous landlords on Kanto</h2><p style="color:var(--muted)">You haven't consented to sharing your verified Kanto stay history for this application.</p></div>`;
+  }
+  return `
     <div class="dash-section" id="verified-landlords">
       <h2>Verified previous landlords on Kanto</h2>
       <p style="color:var(--muted); font-size:0.86rem; margin-top:-8px;">
@@ -77,6 +79,26 @@ export function applicationDetailView({ application, listing, applicant, host, m
           : ''
       }
     </div>`;
+}
+
+// A standalone page for the "View applicant's referral" button on the
+// application detail page, instead of showing this table inline there.
+export function applicationReferralView({ application, listing, applicant, viewerId, verifiedLandlords = [], referenceRequests = [] }) {
+  const isHost = viewerId === listing.host_id;
+  const body = `
+    <div class="hero">
+      <span class="card-vertical">Referral check</span>
+      <h1>${escapeHtml(applicant.name)}'s referral</h1>
+      <p><a href="/applications/${application.id}">&larr; Back to application</a></p>
+    </div>
+    ${verifiedLandlordsSection({ application, applicant, isHost, verifiedLandlords, referenceRequests })}
+  `;
+  return { title: `Referral — ${applicant.name}`, body };
+}
+
+export function applicationDetailView({ application, listing, applicant, host, messages = [], viewerId }) {
+  const isHost = viewerId === listing.host_id;
+  const isApplicant = viewerId === application.applicant_id;
 
   const threadRows = messages.length
     ? messages
@@ -107,7 +129,7 @@ export function applicationDetailView({ application, listing, applicant, host, m
     <div class="hero">
       <span class="card-vertical">Rental application</span>
       <h1><a href="/listings/${listing.id}" style="color:inherit; text-decoration:none;">${escapeHtml(listing.title)}</a></h1>
-      <p>Applicant: ${escapeHtml(applicant.name)} · Move-in ${formatDate(application.move_in_date)} · ${statusPill(application.status)}</p>
+      <p>Move-in ${formatDate(application.move_in_date)} · ${statusPill(application.status)}</p>
     </div>
 
     <div class="detail-grid">
@@ -115,18 +137,20 @@ export function applicationDetailView({ application, listing, applicant, host, m
         <div class="dash-section">
           <h2>Screening details</h2>
           <table class="simple">
+            <tr><th>Applicant</th><td>${escapeHtml(applicant.name)}</td></tr>
+            <tr><th>Status</th><td>${statusPill(application.status)}</td></tr>
+            <tr><th>Submitted</th><td>${formatDate(application.created_at)}</td></tr>
+            ${application.decided_at ? `<tr><th>Decided</th><td>${formatDate(application.decided_at)}</td></tr>` : ''}
             <tr><th>Employment</th><td>${escapeHtml(application.employment || '—')}</td></tr>
             <tr><th>Previous landlord</th><td>${escapeHtml(application.previous_landlord_name || '—')}</td></tr>
             <tr><th>Landlord contact</th><td>${escapeHtml(application.previous_landlord_contact || '—')}</td></tr>
             <tr><th>Background-check consent</th><td>${application.consent_background_check ? 'Given' : 'Not given'}</td></tr>
-            <tr><th>Message</th><td>${escapeHtml(application.message || '—')}</td></tr>
           </table>
           <p class="demo-note" style="margin-top:14px;">${isHost ? 'Call or email the previous landlord above to verify — this app doesn\'t run an automated check on your behalf.' : 'The host may contact your previous landlord to verify this application.'}</p>
           ${actions ? `<div style="margin-top:14px;">${actions}</div>` : ''}
         </div>
-
-        ${verifiedSection}
-
+      </div>
+      <div>
         <div class="dash-section" id="messages">
           <h2>Messages</h2>
           <p style="color:var(--muted); font-size:0.86rem; margin-top:-8px;">Between you and ${escapeHtml(isHost ? applicant.name : host.name)}, about this application. Only the two of you can see it.</p>
@@ -136,11 +160,7 @@ export function applicationDetailView({ application, listing, applicant, host, m
             <button class="btn btn-primary" type="submit">Send</button>
           </form>
         </div>
-      </div>
-      <div class="booking-box" style="position:static;">
-        <div class="price-line"><span>Status</span><span>${statusPill(application.status)}</span></div>
-        <div class="price-line"><span>Submitted</span><span>${formatDate(application.created_at)}</span></div>
-        ${application.decided_at ? `<div class="price-line total"><span>Decided</span><span>${formatDate(application.decided_at)}</span></div>` : ''}
+        <a class="btn btn-primary btn-block" href="/applications/${application.id}/referral">View applicant's referral</a>
       </div>
     </div>
   `;
