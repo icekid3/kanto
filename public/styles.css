@@ -369,6 +369,9 @@ table.simple tr:last-child td { border-bottom: none; }
 .pill-submitted { background: var(--gold-soft); color: var(--gold); }
 .pill-approved { background: var(--success-soft); color: var(--success); }
 .pill-withdrawn { background: var(--surface-2); color: var(--muted); }
+.pill-requested { background: var(--gold-soft); color: var(--gold); }
+.pill-responded { background: var(--success-soft); color: var(--success); }
+.pill-declined_to_respond { background: var(--surface-2); color: var(--muted); }
 
 /* availability calendar */
 .cal-months { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 10px; }

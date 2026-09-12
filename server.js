@@ -21,6 +21,7 @@ import { privacyView } from './views/privacy.js';
 import { dashboardView, myBookingsView, myApplicationsView, myInquiriesView } from './views/dashboard.js';
 import { bookingDetailView } from './views/booking.js';
 import { applicationFormView, applicationDetailView } from './views/application.js';
+import { referenceDetailView } from './views/reference.js';
 import { inquiryFormView, inquiryDetailView } from './views/inquiry.js';
 import { qrMatrixToSvg, qrPosterView } from './views/qr.js';
 import { availabilityView } from './views/availability.js';
@@ -564,7 +565,9 @@ async function handleApplicationDetail(req, res, id, user) {
   const { application, listing, applicant, host } = full;
   if (user.id !== application.applicant_id && user.id !== listing.host_id) return send(res, 403, 'Not your application.');
   const messages = fetchMessagesForApplication(id);
-  render(res, user, applicationDetailView({ application, listing, applicant, host, messages, viewerId: user.id }));
+  const verifiedLandlords = fetchVerifiedPastLandlords(application.applicant_id, listing.host_id);
+  const referenceRequests = fetchReferenceRequestsForApplication(id);
+  render(res, user, applicationDetailView({ application, listing, applicant, host, messages, viewerId: user.id, verifiedLandlords, referenceRequests }));
 }
 
 async function handleApplicationMessagePost(req, res, id, user) {
@@ -593,6 +596,167 @@ async function handleApplicationDecide(req, res, id, user, decision) {
   if (application.status !== 'submitted') return redirect(res, `/applications/${id}`);
   run("UPDATE applications SET status = $status, decided_at = datetime('now') WHERE id = $id", { $status: decision, $id: id });
   redirect(res, `/applications/${id}`);
+}
+
+// ---- verified reference checks ------------------------------------------
+// A *reviewing* host asking one of an applicant's past, verified Kanto
+// hosts about their experience -- tied to a real completed booking, not
+// the self-reported previous_landlord_name/contact fields above.
+
+// Up to 3 most recent DISTINCT hosts the applicant has a completed booking
+// with elsewhere on Kanto (excluding the host currently reviewing them --
+// no point "requesting a reference" from yourself).
+function fetchVerifiedPastLandlords(applicantId, excludeHostId) {
+  const rows = all(
+    `SELECT b.id as booking_id, b.end_date, l.title as listing_title, l.host_id, u.name as host_name
+     FROM bookings b
+     JOIN listings l ON l.id = b.listing_id
+     JOIN users u ON u.id = l.host_id
+     WHERE b.guest_id = $applicantId AND b.status = 'completed'
+     ORDER BY b.end_date DESC, b.created_at DESC`,
+    { $applicantId: applicantId }
+  );
+  const seen = new Set();
+  const result = [];
+  for (const row of rows) {
+    if (row.host_id === excludeHostId || seen.has(row.host_id)) continue;
+    seen.add(row.host_id);
+    result.push(row);
+    if (result.length === 3) break;
+  }
+  return result;
+}
+
+function fetchReferenceRequestsForApplication(applicationId) {
+  return all('SELECT * FROM reference_requests WHERE application_id = $applicationId', { $applicationId: applicationId });
+}
+
+function fetchReferenceFull(id) {
+  const ref = get('SELECT * FROM reference_requests WHERE id = $id', { $id: id });
+  if (!ref) return null;
+  const application = get('SELECT * FROM applications WHERE id = $id', { $id: ref.application_id });
+  const listing = get('SELECT * FROM listings WHERE id = $id', { $id: application.listing_id });
+  const pastBooking = get('SELECT * FROM bookings WHERE id = $id', { $id: ref.past_booking_id });
+  const pastListing = get('SELECT * FROM listings WHERE id = $id', { $id: pastBooking.listing_id });
+  const applicant = get('SELECT * FROM users WHERE id = $id', { $id: ref.applicant_id });
+  const requestingHost = get('SELECT * FROM users WHERE id = $id', { $id: ref.requesting_host_id });
+  const pastHost = get('SELECT * FROM users WHERE id = $id', { $id: ref.past_host_id });
+  return {
+    ref: { ...ref, stay_end_date: pastBooking.end_date },
+    application,
+    listing,
+    pastListing,
+    applicant,
+    requestingHost,
+    pastHost,
+  };
+}
+
+function fetchMessagesForReference(referenceId) {
+  return all(
+    `SELECT m.*, u.name as sender_name FROM reference_messages m JOIN users u ON u.id = m.sender_id
+     WHERE m.reference_request_id = $referenceId ORDER BY m.created_at ASC`,
+    { $referenceId: referenceId }
+  );
+}
+
+// Also used by the host dashboard's "Reference checks" section, for
+// either side of the conversation (the host who asked, or the past host
+// being asked).
+function fetchReferenceRequestsForUser(userId) {
+  return all(
+    `SELECT r.*, ap.name as applicant_name, rh.name as requesting_host_name, ph.name as past_host_name,
+            pl.title as past_listing_title
+     FROM reference_requests r
+     JOIN bookings b ON b.id = r.past_booking_id
+     JOIN listings pl ON pl.id = b.listing_id
+     JOIN users ap ON ap.id = r.applicant_id
+     JOIN users rh ON rh.id = r.requesting_host_id
+     JOIN users ph ON ph.id = r.past_host_id
+     WHERE r.requesting_host_id = $userId OR r.past_host_id = $userId
+     ORDER BY r.created_at DESC`,
+    { $userId: userId }
+  );
+}
+
+async function handleReferenceRequestPost(req, res, applicationId, user) {
+  const full = fetchApplicationFull(applicationId);
+  if (!full) return send(res, 404, 'Application not found');
+  const { application, listing } = full;
+  if (!user || user.id !== listing.host_id) return send(res, 403, 'Only the reviewing host can request a reference.');
+  if (!application.consent_background_check) return send(res, 403, 'The applicant has not consented to sharing verified Kanto history.');
+  const body = await readBody(req);
+  const pastHostId = body.past_host_id;
+  const pastBookingId = body.past_booking_id;
+  // Re-derive the verified list server-side instead of trusting the posted
+  // ids outright -- confirms this really is a completed stay by this
+  // applicant with this host, not something spoofed via the form.
+  const verified = fetchVerifiedPastLandlords(application.applicant_id, listing.host_id);
+  const match = verified.find((l) => l.host_id === pastHostId && l.booking_id === pastBookingId);
+  if (!match) return send(res, 400, 'That reference could not be verified.');
+  const existing = get(
+    'SELECT id FROM reference_requests WHERE application_id = $applicationId AND past_host_id = $pastHostId',
+    { $applicationId: applicationId, $pastHostId: pastHostId }
+  );
+  if (existing) return redirect(res, `/references/${existing.id}`);
+  const id = crypto.randomUUID();
+  run(
+    `INSERT INTO reference_requests (id, application_id, applicant_id, requesting_host_id, past_host_id, past_booking_id)
+     VALUES ($id, $applicationId, $applicantId, $requestingHostId, $pastHostId, $pastBookingId)`,
+    {
+      $id: id,
+      $applicationId: applicationId,
+      $applicantId: application.applicant_id,
+      $requestingHostId: user.id,
+      $pastHostId: pastHostId,
+      $pastBookingId: pastBookingId,
+    }
+  );
+  redirect(res, `/references/${id}`);
+}
+
+async function handleReferenceDetail(req, res, id, user) {
+  if (!user) return redirect(res, `/login?next=/references/${id}`);
+  const full = fetchReferenceFull(id);
+  if (!full) return send(res, 404, 'Reference request not found');
+  const { ref } = full;
+  if (user.id !== ref.requesting_host_id && user.id !== ref.past_host_id) return send(res, 403, 'Not your reference check.');
+  const messages = fetchMessagesForReference(id);
+  render(res, user, referenceDetailView({ ...full, messages, viewerId: user.id }));
+}
+
+async function handleReferenceMessagePost(req, res, id, user) {
+  const full = fetchReferenceFull(id);
+  if (!full) return send(res, 404, 'Reference request not found');
+  const { ref } = full;
+  if (!user || (user.id !== ref.requesting_host_id && user.id !== ref.past_host_id)) return send(res, 403, 'Not your reference check.');
+  const body = await readBody(req);
+  const text = (body.body || '').trim();
+  if (text) {
+    run('INSERT INTO reference_messages (id, reference_request_id, sender_id, body) VALUES ($id, $referenceId, $senderId, $body)', {
+      $id: crypto.randomUUID(),
+      $referenceId: id,
+      $senderId: user.id,
+      $body: text.slice(0, 2000),
+    });
+    if (user.id === ref.past_host_id && ref.status === 'requested') {
+      run("UPDATE reference_requests SET status = 'responded' WHERE id = $id", { $id: id });
+    }
+  }
+  redirect(res, `/references/${id}#messages`);
+}
+
+async function handleReferenceRatePost(req, res, id, user) {
+  const full = fetchReferenceFull(id);
+  if (!full) return send(res, 404, 'Reference request not found');
+  const { ref } = full;
+  if (!user || user.id !== ref.past_host_id) return send(res, 403, 'Only the past host can leave this reference.');
+  const body = await readBody(req);
+  const rating = ['positive', 'neutral', 'negative'].includes(body.rating) ? body.rating : null;
+  if (rating) {
+    run("UPDATE reference_requests SET rating = $rating, status = 'responded' WHERE id = $id", { $id: id, $rating: rating });
+  }
+  redirect(res, `/references/${id}`);
 }
 
 // ---- pre-booking listing inquiries --------------------------------------
@@ -840,7 +1004,8 @@ async function handleDashboard(req, res, user) {
   const applications = fetchApplicationsForUser(user);
   const inquiries = fetchInquiriesForUser(user);
   const performance = user.role === 'host' ? analyticsForHostListings(listings) : [];
-  render(res, user, dashboardView({ user, listings, bookings, applications, inquiries, performance }));
+  const referenceRequests = user.role === 'host' ? fetchReferenceRequestsForUser(user.id) : [];
+  render(res, user, dashboardView({ user, listings, bookings, applications, inquiries, performance, referenceRequests }));
 }
 
 // The guest launcher's tiles (see views/dashboard.js) link out to these
@@ -929,6 +1094,18 @@ const server = http.createServer(async (req, res) => {
       const [, applicationId, action] = applicationActionMatch;
       return handleApplicationDecide(req, res, applicationId, user, action === 'approve' ? 'approved' : 'declined');
     }
+
+    const referenceRequestMatch = pathname.match(/^\/applications\/([^/]+)\/references$/);
+    if (req.method === 'POST' && referenceRequestMatch) return handleReferenceRequestPost(req, res, referenceRequestMatch[1], user);
+
+    const referenceMessageMatch = pathname.match(/^\/references\/([^/]+)\/messages$/);
+    if (req.method === 'POST' && referenceMessageMatch) return handleReferenceMessagePost(req, res, referenceMessageMatch[1], user);
+
+    const referenceRateMatch = pathname.match(/^\/references\/([^/]+)\/rate$/);
+    if (req.method === 'POST' && referenceRateMatch) return handleReferenceRatePost(req, res, referenceRateMatch[1], user);
+
+    const referenceMatch = pathname.match(/^\/references\/([^/]+)$/);
+    if (req.method === 'GET' && referenceMatch) return handleReferenceDetail(req, res, referenceMatch[1], user);
 
     const inquiryMatch = pathname.match(/^\/inquiries\/([^/]+)$/);
     if (req.method === 'GET' && inquiryMatch) return handleInquiryDetail(req, res, inquiryMatch[1], user);

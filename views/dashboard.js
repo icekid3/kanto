@@ -126,7 +126,7 @@ export function myInquiriesView({ user, inquiries = [] }) {
 
 // ---- main dashboard entry point -------------------------------------
 
-export function dashboardView({ user, listings = [], bookings = [], applications = [], inquiries = [], performance = [] }) {
+export function dashboardView({ user, listings = [], bookings = [], applications = [], inquiries = [], performance = [], referenceRequests = [] }) {
   const isHost = user.role === 'host';
 
   if (!isHost) {
@@ -234,6 +234,29 @@ export function dashboardView({ user, listings = [], bookings = [], applications
     </div>`
     : '';
 
+  const referenceChecksTable = referenceRequests.length
+    ? `
+    <div class="dash-section" id="reference-checks">
+      <h2>Reference checks</h2>
+      <p style="color:var(--muted); font-size:0.86rem; margin-top:-8px;">Verified, in-platform reference requests tied to a real completed stay — either ones you've asked, or ones another host is asking you.</p>
+      <table class="simple">
+        <tr><th>Tenant</th><th>Past stay</th><th>Role</th><th>Status</th><th></th></tr>
+        ${referenceRequests
+          .map((r) => {
+            const isPastHost = r.past_host_id === user.id;
+            return `<tr>
+              <td>${escapeHtml(r.applicant_name)}</td>
+              <td>${escapeHtml(r.past_listing_title)}</td>
+              <td>${isPastHost ? `Asked by ${escapeHtml(r.requesting_host_name)}` : `You asked ${escapeHtml(r.past_host_name)}`}</td>
+              <td>${statusPill(r.status)}</td>
+              <td><a href="/references/${r.id}">View</a></td>
+            </tr>`;
+          })
+          .join('')}
+      </table>
+    </div>`
+    : '';
+
   const inquiriesTable = `
     <div class="dash-section" id="inquiries">
       <h2>Inquiries about my listings</h2>
@@ -263,6 +286,7 @@ export function dashboardView({ user, listings = [], bookings = [], applications
     </div>
     ${listingsTable}
     ${performanceTable}
+    ${referenceChecksTable}
     ${inquiriesTable}
     ${applicationsTable}
     ${bookingsTable}

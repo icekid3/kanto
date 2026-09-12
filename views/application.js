@@ -18,7 +18,7 @@ export function applicationFormView({ listing, error, values = {} } = {}) {
         </label>
         <label style="display:flex; align-items:flex-start; gap:8px; font-weight:500;">
           <input type="checkbox" name="consent_background_check" value="yes" style="width:auto; margin-top:3px;" ${values.consent_background_check ? 'checked' : ''} required>
-          <span>I consent to the host contacting my previous landlord and reviewing the information above as part of screening this application.</span>
+          <span>I consent to the host contacting my previous landlord above, and to my completed stays on Kanto being shown to hosts I apply to so they can request a reference directly from those past hosts.</span>
         </label>
         <button class="btn btn-primary btn-block" type="submit" style="margin-top:6px;">Submit application</button>
       </form>
@@ -28,9 +28,55 @@ export function applicationFormView({ listing, error, values = {} } = {}) {
   return { title: 'Apply to rent', body };
 }
 
-export function applicationDetailView({ application, listing, applicant, host, messages = [], viewerId }) {
+export function applicationDetailView({ application, listing, applicant, host, messages = [], viewerId, verifiedLandlords = [], referenceRequests = [] }) {
   const isHost = viewerId === listing.host_id;
   const isApplicant = viewerId === application.applicant_id;
+
+  const verifiedSection = !application.consent_background_check
+    ? (isHost
+        ? `<div class="dash-section"><h2>Verified previous landlords on Kanto</h2><p style="color:var(--muted)">The applicant hasn't consented to sharing verified Kanto stay history for this application.</p></div>`
+        : '')
+    : `
+    <div class="dash-section" id="verified-landlords">
+      <h2>Verified previous landlords on Kanto</h2>
+      <p style="color:var(--muted); font-size:0.86rem; margin-top:-8px;">
+        ${verifiedLandlords.length
+          ? `${escapeHtml(applicant.name)} has ${verifiedLandlords.length} verified completed ${verifiedLandlords.length === 1 ? 'stay' : 'stays'} on Kanto${isHost ? ' — request a reference straight from a past host below.' : '.'}`
+          : `No verified completed stays on Kanto yet for ${escapeHtml(applicant.name)}${isHost ? ' — nothing to check here besides the self-reported reference above.' : '.'}`}
+      </p>
+      ${
+        verifiedLandlords.length
+          ? `<table class="simple">
+              <tr><th>Past host</th><th>Listing</th><th>Stay ended</th><th>Reference</th></tr>
+              ${verifiedLandlords
+                .map((l) => {
+                  const existingReq = referenceRequests.find((r) => r.past_host_id === l.host_id);
+                  let cell;
+                  if (existingReq) {
+                    cell = isHost
+                      ? `<a href="/references/${existingReq.id}">${statusPill(existingReq.status)}</a>`
+                      : statusPill(existingReq.status);
+                  } else if (isHost) {
+                    cell = `<form method="post" action="/applications/${application.id}/references" style="display:inline;">
+                      <input type="hidden" name="past_host_id" value="${l.host_id}">
+                      <input type="hidden" name="past_booking_id" value="${l.booking_id}">
+                      <button class="btn" type="submit">Request reference</button>
+                    </form>`;
+                  } else {
+                    cell = `<span style="color:var(--muted)">—</span>`;
+                  }
+                  return `<tr>
+                    <td>${escapeHtml(l.host_name)}</td>
+                    <td>${escapeHtml(l.listing_title)}</td>
+                    <td>${formatDate(l.end_date)}</td>
+                    <td>${cell}</td>
+                  </tr>`;
+                })
+                .join('')}
+            </table>`
+          : ''
+      }
+    </div>`;
 
   const threadRows = messages.length
     ? messages
@@ -78,6 +124,8 @@ export function applicationDetailView({ application, listing, applicant, host, m
           <p class="demo-note" style="margin-top:14px;">${isHost ? 'Call or email the previous landlord above to verify — this app doesn\'t run an automated check on your behalf.' : 'The host may contact your previous landlord to verify this application.'}</p>
           ${actions ? `<div style="margin-top:14px;">${actions}</div>` : ''}
         </div>
+
+        ${verifiedSection}
 
         <div class="dash-section" id="messages">
           <h2>Messages</h2>
