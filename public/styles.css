@@ -301,6 +301,53 @@ main { padding-block: 32px 72px; animation: kanto-fade-in 0.35s ease both; }
 /* dashboard */
 .dash-section { margin-bottom: 32px; background: var(--surface); border-radius: 20px; padding: 22px 24px; box-shadow: var(--shadow-card); transition: background-color 0.25s ease; }
 .dash-section h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.01em; font-size: 1.2rem; margin: 0 0 14px; }
+
+/* guest dashboard launcher (iCloud-style profile card + icon-tile grid) */
+.launcher { display: flex; gap: 20px; flex-wrap: wrap; align-items: stretch; }
+.launcher-profile {
+  flex: 0 1 260px; background: var(--surface); border-radius: 22px; padding: 32px 24px;
+  box-shadow: var(--shadow-pop); display: flex; flex-direction: column; align-items: center;
+  text-align: center; gap: 4px; transition: background-color 0.25s ease;
+}
+.avatar-circle {
+  width: 84px; height: 84px; border-radius: 50%; margin-bottom: 12px;
+  background: linear-gradient(135deg, #4FC3FF, #0071E3); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 700; font-size: 2rem;
+  box-shadow: 0 8px 20px rgba(0,113,227,0.28);
+}
+.launcher-profile h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.01em; font-size: 1.3rem; margin: 0; }
+.launcher-profile p { color: var(--muted); font-size: 0.9rem; margin: 2px 0 10px; word-break: break-all; }
+.plan-badge {
+  display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em;
+  color: var(--accent); background: var(--accent-soft); padding: 5px 12px; border-radius: 980px;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+.launcher-grid {
+  flex: 1 1 420px; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px; align-content: start; background: var(--surface); border-radius: 22px;
+  padding: 28px 24px; box-shadow: var(--shadow-pop); transition: background-color 0.25s ease;
+}
+.launcher-tile {
+  display: flex; flex-direction: column; align-items: center; gap: 10px; text-decoration: none;
+  color: var(--ink); padding: 10px 6px; border-radius: 16px;
+  transition: transform 0.2s cubic-bezier(.22,.61,.36,1), background-color 0.2s ease;
+}
+.launcher-tile:hover { transform: translateY(-4px); background: var(--surface-2); color: var(--ink); }
+.tile-icon {
+  width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.16);
+}
+.tile-icon-blue { background: linear-gradient(135deg, #4FC3FF, #0071E3); }
+.tile-icon-teal { background: linear-gradient(135deg, #63E6D4, #0EA5A0); }
+.tile-icon-purple { background: linear-gradient(135deg, #C084FF, #7C3AED); }
+.tile-icon-orange { background: linear-gradient(135deg, #FFC062, #FF7A45); }
+.tile-label { font-size: 0.82rem; font-weight: 600; text-align: center; }
+
+@media (max-width: 640px) {
+  .launcher { flex-direction: column; }
+  .launcher-profile { flex-basis: auto; }
+}
 table.simple { width: 100%; border-collapse: collapse; background: transparent; border: none; }
 table.simple th, table.simple td { text-align: left; padding: 11px 8px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
 table.simple th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); font-weight: 700; }

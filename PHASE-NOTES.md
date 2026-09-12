@@ -122,6 +122,12 @@ Want a real public URL instead of `localhost`? See **`DEPLOY.md`** — a free, n
 - **Signup now requires agreeing to both** — a required checkbox on the signup form (`views/auth.js`) linking to `/terms` and `/privacy` in new tabs. Enforced server-side too (`handleSignupPost` in `server.js` rejects a signup with no `agree_terms`), not just a disabled-button trick in the browser. A new `terms_accepted_at` column on `users` (added via a small migration in `lib/db.js` so it applies to databases that already existed, not just fresh ones) records when each user agreed.
 - This is a first draft, not legal advice — the honest gaps (no NPC registration yet, since a Phase 1 demo is well under the size/scale thresholds that would require it; no real DPO; PH consumer-protection specifics around real payments/escrow not yet addressed) are called out in the doc itself, matching the "going live for real" checklist in `DEPLOY.md`.
 
+## Phase 12 — iCloud-style launcher for the guest dashboard
+
+- **Guest `/dashboard` is now a launcher, not tables** — signed-in guests see a profile card (avatar-circle monogram, name, email, "Guest account" badge) next to a grid of colorful icon tiles (Browse, My Bookings, Applications, Inquiries), styled after iCloud.com's app-grid home screen. This only changes the **guest** view — the host dashboard is untouched (still the original tables: My listings, performance, inquiries/applications/bookings received).
+- **Three new dedicated pages** (`views/dashboard.js`'s `myBookingsView` / `myApplicationsView` / `myInquiriesView`, routed at `/my-bookings`, `/my-applications`, `/my-inquiries` in `server.js`) hold the actual tables that used to live inline on the guest dashboard — each tile now links out to its own page instead of everything being on one long scrolling page. Same data, same `fetchBookingsForUser` / `fetchApplicationsForUser` / `fetchInquiriesForUser` queries as before, just moved.
+- New CSS in `public/styles.css`: `.launcher` / `.launcher-profile` / `.launcher-grid` / `.tile-icon` (four gradient color variants) — reuses the same design tokens as the rest of the Phase 10 redesign, so it follows dark mode automatically.
+
 ## What's deliberately not built yet
 
 - Real listing photo uploads — cards show a vertical-based icon graphic (see Phase 10), not an actual photo of the place.

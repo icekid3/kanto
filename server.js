@@ -18,7 +18,7 @@ import { listingFormView } from './views/listingForm.js';
 import { loginView, signupView } from './views/auth.js';
 import { termsView } from './views/terms.js';
 import { privacyView } from './views/privacy.js';
-import { dashboardView } from './views/dashboard.js';
+import { dashboardView, myBookingsView, myApplicationsView, myInquiriesView } from './views/dashboard.js';
 import { bookingDetailView } from './views/booking.js';
 import { applicationFormView, applicationDetailView } from './views/application.js';
 import { inquiryFormView, inquiryDetailView } from './views/inquiry.js';
@@ -843,6 +843,23 @@ async function handleDashboard(req, res, user) {
   render(res, user, dashboardView({ user, listings, bookings, applications, inquiries, performance }));
 }
 
+// The guest launcher's tiles (see views/dashboard.js) link out to these
+// three dedicated pages instead of showing tables inline on /dashboard.
+async function handleMyBookings(req, res, user) {
+  if (!user) return redirect(res, '/login?next=/my-bookings');
+  render(res, user, myBookingsView({ user, bookings: fetchBookingsForUser(user) }));
+}
+
+async function handleMyApplications(req, res, user) {
+  if (!user) return redirect(res, '/login?next=/my-applications');
+  render(res, user, myApplicationsView({ user, applications: fetchApplicationsForUser(user) }));
+}
+
+async function handleMyInquiries(req, res, user) {
+  if (!user) return redirect(res, '/login?next=/my-inquiries');
+  render(res, user, myInquiriesView({ user, inquiries: fetchInquiriesForUser(user) }));
+}
+
 // ---- router ---------------------------------------------------------
 
 const server = http.createServer(async (req, res) => {
@@ -928,6 +945,9 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'POST' && pathname === '/signup') return handleSignupPost(req, res);
     if (req.method === 'POST' && pathname === '/logout') return handleLogout(req, res);
     if (req.method === 'GET' && pathname === '/dashboard') return handleDashboard(req, res, user);
+    if (req.method === 'GET' && pathname === '/my-bookings') return handleMyBookings(req, res, user);
+    if (req.method === 'GET' && pathname === '/my-applications') return handleMyApplications(req, res, user);
+    if (req.method === 'GET' && pathname === '/my-inquiries') return handleMyInquiries(req, res, user);
 
     send(res, 404, layout({ title: 'Not found', user, body: '<div class="empty-state">Page not found. <a href="/">Go home</a></div>' }), {});
   } catch (err) {
