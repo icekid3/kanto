@@ -1050,7 +1050,8 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === 'GET' && serveStatic(req, res, pathname)) return;
 
-    if (req.method === 'GET' && pathname === '/') return handleHome(req, res, url, user);
+    if (req.method === 'GET' && pathname === '/') return render(res, user, aboutView());
+    if (req.method === 'GET' && pathname === '/browse') return handleHome(req, res, url, user);
 
     if (req.method === 'GET' && pathname === '/listings/new') return handleListingNewGet(req, res, user);
     if (req.method === 'POST' && pathname === '/listings/new') return handleListingNewPost(req, res, user);
@@ -1130,8 +1131,6 @@ const server = http.createServer(async (req, res) => {
 
     const inquiryMessageMatch = pathname.match(/^\/inquiries\/([^/]+)\/messages$/);
     if (req.method === 'POST' && inquiryMessageMatch) return handleInquiryMessagePost(req, res, inquiryMessageMatch[1], user);
-
-    if (req.method === 'GET' && pathname === '/about') return render(res, user, aboutView());
 
     if (req.method === 'GET' && pathname === '/terms') return render(res, user, termsView());
     if (req.method === 'GET' && pathname === '/privacy') return render(res, user, privacyView());

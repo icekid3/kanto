@@ -69,7 +69,7 @@ export function myBookingsView({ user, bookings = [] }) {
               )
               .join('')}
           </table>`
-        : `<p style="color:var(--muted)">No bookings yet. <a href="/">Browse listings</a> and request to book to see this fill in.</p>`
+        : `<p style="color:var(--muted)">No bookings yet. <a href="/browse">Browse listings</a> and request to book to see this fill in.</p>`
     }
   `;
   return { title: 'My bookings', body, activeNav: 'dashboard' };

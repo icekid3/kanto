@@ -1,7 +1,7 @@
-// views/about.js — "why Kanto" marketing splash page. Distinct from the
-// functional Browse homepage (views/home.js): this one sells the idea of
-// the platform to a first-time visitor, whichever side they're on, then
-// hands them off to Browse or Sign up. See PHASE-NOTES.md (Phase 15).
+// views/about.js — "why Kanto" marketing splash page, and now the site's
+// actual homepage ("/"). The functional Browse/search grid that used to
+// live at "/" moved to "/browse" (views/home.js) — see PHASE-NOTES.md
+// (Phase 15, Phase 15.1).
 import { escapeHtml } from '../lib/format.js';
 
 const ICON_SEARCH = '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>';
@@ -16,7 +16,7 @@ const FEATURES = [
   {
     icon: ICON_SEARCH,
     title: 'One search, every kind of space',
-    body: 'Short-term stays, long-term leases, and storage or rentable spaces — all in one marketplace instead of three different apps.',
+    body: 'Short-term stays, long-term leases, and rentable spaces — all in one marketplace instead of three different apps.',
   },
   {
     icon: ICON_FLOW,
@@ -34,7 +34,7 @@ function miniBrowsePreview() {
   const tiles = [
     { cls: 'tile-stay', title: 'Sunset Studio, Boracay', price: '₱3,200/night' },
     { cls: 'tile-lease', title: '2BR Condo, Lahug', price: '₱18,000/mo' },
-    { cls: 'tile-storage', title: 'Drive-Up Storage', price: '₱2,500/mo' },
+    { cls: 'tile-storage', title: 'Drive-Up Space', price: '₱2,500/mo' },
   ];
   return `
     <div class="mini-grid">
@@ -55,10 +55,9 @@ function miniBrowsePreview() {
 
 function miniFlowPreview() {
   const steps = [
-    { label: 'Message host', done: true },
-    { label: 'Apply & reference check', done: true },
-    { label: 'Approved', done: true },
-    { label: 'Pay & move in', done: false },
+    { label: 'Inquire', done: true },
+    { label: 'Book', done: true },
+    { label: 'Move in', done: false },
   ];
   return `
     <div class="mini-flow">
@@ -94,8 +93,8 @@ function miniDashboardPreview() {
 }
 
 const SHOWCASE = [
-  { title: 'Search stays, leases & storage', body: 'Filter by city and price across every listing type, side by side.', preview: miniBrowsePreview() },
-  { title: 'Apply, message & book — one flow', body: 'Every conversation and every step of a lease application, tracked end to end.', preview: miniFlowPreview() },
+  { title: 'Search stays, leases & spaces', body: 'Filter by city and price across every listing type, side by side.', preview: miniBrowsePreview() },
+  { title: 'Inquire, book & move in', body: 'One simple flow from a first message to the keys in hand.', preview: miniFlowPreview() },
   { title: 'Run it all from one dashboard', body: 'Listings, applications, bookings, and messages, at a glance.', preview: miniDashboardPreview() },
 ];
 
@@ -103,9 +102,17 @@ export function aboutView() {
   const body = `
     <div class="about-hero">
       <div class="about-copy">
-        <span class="about-eyebrow">Stays &middot; Leases &middot; Storage</span>
+        <div class="about-eyebrow-row" aria-hidden="true">
+          <span>Stays</span><span>Leases</span><span>Spaces</span>
+        </div>
+
+        <div class="about-cta-row about-cta-top">
+          <a class="btn btn-primary" href="/browse">Browse listings</a>
+          <a class="btn" href="/signup?role=host">List your space</a>
+        </div>
+
         <h1>Every kind of space,<br><em>one easy platform.</em></h1>
-        <p>Kanto brings short-term stays, long-term leases, and storage or rentable spaces into a single marketplace — hosted by owners across the Philippines. Search and book as a guest, or list your own space and manage it from one dashboard.</p>
+        <p>Kanto brings short-term stays, long-term leases, and rentable spaces into a single marketplace — hosted by owners across the Philippines. Search and book as a guest, or list your own space and manage it from one dashboard.</p>
 
         <div class="about-features">
           ${FEATURES.map(
@@ -115,11 +122,6 @@ export function aboutView() {
               <div><strong>${escapeHtml(f.title)}</strong><p>${escapeHtml(f.body)}</p></div>
             </div>`
           ).join('')}
-        </div>
-
-        <div class="about-cta-row">
-          <a class="btn btn-primary" href="/">Browse listings</a>
-          <a class="btn" href="/signup?role=host">List your space</a>
         </div>
       </div>
 
@@ -138,5 +140,5 @@ export function aboutView() {
       </div>
     </div>
   `;
-  return { title: 'About Kanto', body, activeNav: 'about' };
+  return { title: 'Kanto', body };
 }

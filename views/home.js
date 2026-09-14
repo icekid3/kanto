@@ -33,12 +33,12 @@ export function homeView({ listings, query = {}, user }) {
   const sort = query.sort || '';
 
   const tabs = VERTICALS.map(
-    (v) => `<a class="vtab ${vertical === v.key ? 'active' : ''}" href="/${qs({ vertical: v.key, city, sort })}">${v.label}</a>`
+    (v) => `<a class="vtab ${vertical === v.key ? 'active' : ''}" href="/browse${qs({ vertical: v.key, city, sort })}">${v.label}</a>`
   ).join('');
 
   const cards = listings.length
     ? `<div class="grid">${listings.map(listingCard).join('')}</div>`
-    : `<div class="empty-state">No listings match those filters yet. <a href="/">Clear filters</a></div>`;
+    : `<div class="empty-state">No listings match those filters yet. <a href="/browse">Clear filters</a></div>`;
 
   const body = `
     <div class="hero">
@@ -48,7 +48,7 @@ export function homeView({ listings, query = {}, user }) {
 
     <div class="vertical-tabs">${tabs}</div>
 
-    <form class="filter-bar" method="get" action="/">
+    <form class="filter-bar" method="get" action="/browse">
       <input type="hidden" name="vertical" value="${escapeHtml(vertical)}">
       <div class="field">
         <label for="city">City</label>

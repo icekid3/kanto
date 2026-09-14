@@ -157,6 +157,18 @@ Want a real public URL instead of `localhost`? See **`DEPLOY.md`** — a free, n
 - Added an "About" link to the top nav (`views/layout.js`), next to "Browse", visible whether logged in or not.
 - Inspired by a hotel-website-agency landing page the user shared as a reference for the general split-hero / numbered-showcase layout pattern; copy, colors, and the preview mockups are original and use Kanto's existing design tokens, not the reference image's content.
 
+## Phase 15.1 — About page became the homepage, plus layout requests
+
+Follow-up requests after seeing Phase 15 live:
+
+- **`/about` is now the homepage.** The functional Browse/search grid that used to live at `/` (`homeView`, `views/home.js`) moved to `/browse`; `aboutView` now renders at `/` (`server.js`). Every internal link that used to assume `/` meant Browse was updated to `/browse`: the vertical tabs and filter form in `views/home.js`, the "Clear filters" link, the empty-bookings "Browse listings" link in `views/dashboard.js`, and the "Browse listings" CTA in `views/about.js`.
+- **Removed "Browse" and "About" from the top nav** (`views/layout.js`) — with About as the homepage, both were redundant with the logo link and the on-page CTA.
+- **Hero restructured**: the "Browse listings" / "List your space" buttons moved from below the feature list to directly above the headline, centered with a wider gap between them (`.about-cta-top` in `public/styles.css`) instead of left-aligned lower on the page.
+- **"Stays · Leases · Storage" eyebrow reworked and renamed to "Spaces"**: on desktop it's removed entirely (the CTA buttons now sit in that spot); on narrow screens it's a full-width row with the three words spread apart (`justify-content: space-between`) instead of clustered in one pill (`.about-eyebrow-row`, mobile-only via `@media (max-width: 900px)`). "Storage" was renamed to "Spaces" everywhere on this page (copy, eyebrow, showcase heading) — the app's underlying `storage` vertical/DB value is untouched, this was page copy only.
+- **Showcase item 02 simplified**: the mini flow preview dropped from four steps (Message host / Apply & reference check / Approved / Pay & move in) to three (Inquire / Book / Move in) — `miniFlowPreview()` in `views/about.js`.
+- **Compressed for a "one-page" feel**: tightened spacing, font sizes, and the three showcase cards (`.showcase-item`, `.mini-*` rules in `public/styles.css`) so the whole page fits within a typical laptop viewport (~1440×900) without scrolling, rather than running tall.
+- **Mobile nav buttons**: "Log in"/"Sign up" were oversized and wrapping mid-word on phone widths — added a `@media (max-width: 480px)` override on `.site-nav .btn` (smaller padding/font, `white-space: nowrap`).
+
 ## What's deliberately not built yet
 
 - Real listing photo uploads — cards show a vertical-based icon graphic (see Phase 10), not an actual photo of the place.
