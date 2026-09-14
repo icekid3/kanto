@@ -1,7 +1,8 @@
 // public/listing.js — hero photo carousel for the guest-facing listing
 // page (views/listing.js). Only loaded on that page (see layout.js's
 // extraScript). Auto-advances, and pauses/restarts its timer on manual
-// interaction (arrow or dot click) so it doesn't fight the visitor.
+// interaction (arrow, dot, or a finger swipe) so it doesn't fight the
+// visitor.
 window.Kanto = window.Kanto || {};
 
 (function () {
@@ -54,6 +55,55 @@ window.Kanto = window.Kanto || {};
         });
       })(dots[i], i);
     }
+
+    // Finger-swipe support. Only decides "this is a horizontal swipe" once
+    // the gesture's direction is clear (a few px of movement), and only
+    // then calls preventDefault -- so a swipe that turns out to be a
+    // vertical scroll still scrolls the (snap-scrolling) page normally,
+    // and only a real left/right swipe steals the gesture from it.
+    var touchStartX = 0;
+    var touchStartY = 0;
+    var touchDeltaX = 0;
+    var touchIsHorizontal = null;
+
+    root.addEventListener(
+      'touchstart',
+      function (e) {
+        if (e.touches.length !== 1) return;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchDeltaX = 0;
+        touchIsHorizontal = null;
+      },
+      { passive: true }
+    );
+
+    root.addEventListener(
+      'touchmove',
+      function (e) {
+        if (e.touches.length !== 1) return;
+        var dx = e.touches[0].clientX - touchStartX;
+        var dy = e.touches[0].clientY - touchStartY;
+        if (touchIsHorizontal === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+          touchIsHorizontal = Math.abs(dx) > Math.abs(dy);
+        }
+        if (touchIsHorizontal) {
+          touchDeltaX = dx;
+          e.preventDefault();
+        }
+      },
+      { passive: false }
+    );
+
+    root.addEventListener('touchend', function () {
+      if (touchIsHorizontal && Math.abs(touchDeltaX) > 40) {
+        if (touchDeltaX < 0) next();
+        else prev();
+        restartTimer();
+      }
+      touchIsHorizontal = null;
+      touchDeltaX = 0;
+    });
 
     show(0);
     restartTimer();

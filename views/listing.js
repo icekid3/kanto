@@ -214,16 +214,7 @@ const VERTICAL_GRADIENT = {
 };
 const SLIDE_PATTERNS = ['pattern-a', 'pattern-b', 'pattern-c'];
 
-// href for a "message the host" action that respects sign-in/existing-
-// conversation state -- same rules the "Have a question?" box below uses,
-// shared here so the hero's shortcut link never disagrees with it.
-function messageHostHref({ listing, user, inquiry }) {
-  if (!user) return `/login?next=/listings/${listing.id}/inquire`;
-  if (inquiry) return `/inquiries/${inquiry.id}`;
-  return `/listings/${listing.id}/inquire`;
-}
-
-function heroCarousel(listing, { availabilityHref, messageHref }) {
+function heroCarousel(listing, { availabilityHref }) {
   const [v1, v2] = VERTICAL_GRADIENT[listing.vertical] || VERTICAL_GRADIENT.stay;
   const slides = SLIDE_PATTERNS.map(
     (p) => `<div class="hero-slide ${p}"><span class="hero-slide-icon">${verticalIcon(listing.vertical, 120)}</span></div>`
@@ -244,10 +235,7 @@ function heroCarousel(listing, { availabilityHref, messageHref }) {
         <span class="hero-vertical-pill">${verticalLabel(listing.vertical)}</span>
         <h1 class="hero-title">${escapeHtml(listing.title)}</h1>
         <p class="hero-loc">${escapeHtml(listing.city)}${listing.region ? ', ' + escapeHtml(listing.region) : ''}</p>
-        <div class="hero-cta-row">
-          <a class="btn btn-primary hero-cta" href="${availabilityHref}">Check availability</a>
-          <a class="hero-cta-secondary" href="${messageHref}">Message the host</a>
-        </div>
+        <a class="btn btn-primary hero-cta" href="${availabilityHref}">Check availability</a>
       </div>
     </div>`;
 }
@@ -259,7 +247,6 @@ function guestListingView({ listing, host, user, error, application, calendar, i
   const applicationPending = isLease && application && application.status === 'submitted';
   const isOwner = false;
   const mapsUrl = mapsUrlFor(listing);
-  const messageHref = messageHostHref({ listing, user, inquiry });
   const availabilityHref = calendar ? '#availability' : '#book';
 
   const questionBox = `
@@ -277,7 +264,7 @@ function guestListingView({ listing, host, user, error, application, calendar, i
     </div>`;
 
   const body = `
-    ${heroCarousel(listing, { availabilityHref, messageHref })}
+    ${heroCarousel(listing, { availabilityHref })}
 
     <section class="snap-section">
       <div class="container">
@@ -292,6 +279,7 @@ function guestListingView({ listing, host, user, error, application, calendar, i
               <p style="color:var(--muted); font-size:0.9rem; margin-top:10px;">Capacity: ${listing.capacity ? listing.capacity + ' guests' : 'n/a'} ·
                 <a href="${mapsUrl}" target="_blank" rel="noopener">View on Google Maps ↗</a>
               </p>
+              <p style="color:var(--muted); font-size:0.86rem; margin-top:10px;">Hosted by ${escapeHtml(host?.name || 'a Kanto host')}</p>
             </div>
             <div class="dash-section">
               <h2>Amenities</h2>
@@ -300,7 +288,6 @@ function guestListingView({ listing, host, user, error, application, calendar, i
           </div>
           <div>
             ${questionBox}
-            <p style="color:var(--muted); font-size:0.86rem; margin-top:14px;">Hosted by ${escapeHtml(host?.name || 'a Kanto host')}</p>
           </div>
         </div>
       </div>

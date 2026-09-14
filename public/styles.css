@@ -655,14 +655,9 @@ html.listing-snap footer.site { scroll-snap-align: start; }
   font-size: clamp(1.9rem, 4.4vw, 3.1rem); margin: 0 0 8px; text-shadow: 0 2px 24px rgba(0,0,0,0.28); max-width: 18ch;
 }
 .hero-loc { font-size: 1.02rem; opacity: 0.92; margin: 0 0 22px; text-shadow: 0 1px 10px rgba(0,0,0,0.25); }
-.hero-cta-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .hero-cta { padding: 12px 24px; }
-.hero-cta-secondary {
-  color: #fff; font-weight: 600; font-size: 0.92rem; text-decoration: underline;
-  text-underline-offset: 3px; text-shadow: 0 1px 10px rgba(0,0,0,0.25);
-}
 
-/* Mobile: the hero overlay's text stack (pill + title + location + CTAs)
+/* Mobile: the hero overlay's text stack (pill + title + location + CTA)
    was tall enough to cover close to a third of the photo on an iPhone-size
    viewport. Shrink everything and clamp the title to two lines so the
    photo stays the star of the hero. */
@@ -674,9 +669,7 @@ html.listing-snap footer.site { scroll-snap-align: start; }
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
   .hero-loc { font-size: 0.84rem; margin: 0 0 14px; }
-  .hero-cta-row { gap: 10px; }
   .hero-cta { padding: 9px 18px; font-size: 0.88rem; }
-  .hero-cta-secondary { font-size: 0.82rem; }
 }
 
 .hero-arrow {
