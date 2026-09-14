@@ -100,43 +100,45 @@ const SHOWCASE = [
 
 export function aboutView() {
   const body = `
-    <div class="about-hero">
-      <div class="about-copy">
-        <div class="about-eyebrow-row" aria-hidden="true">
-          <span>Stays</span><span>Leases</span><span>Spaces</span>
+    <div class="about-page">
+      <div class="about-hero">
+        <div class="about-copy">
+          <div class="about-eyebrow-row" aria-hidden="true">
+            <span>Stays</span><span>Leases</span><span>Spaces</span>
+          </div>
+
+          <div class="about-cta-row about-cta-top">
+            <a class="btn btn-primary" href="/browse">Browse listings</a>
+            <a class="btn" href="/signup?role=host">List your space</a>
+          </div>
+
+          <h1>Every kind of space,<br><em>one easy platform.</em></h1>
+          <p>Kanto brings short-term stays, long-term leases, and rentable spaces into a single marketplace — hosted by owners across the Philippines. Search and book as a guest, or list your own space and manage it from one dashboard.</p>
+
+          <div class="about-features">
+            ${FEATURES.map(
+              (f) => `
+              <div class="about-feature">
+                <span class="about-feature-icon">${icon(f.icon)}</span>
+                <div><strong>${escapeHtml(f.title)}</strong><p>${escapeHtml(f.body)}</p></div>
+              </div>`
+            ).join('')}
+          </div>
         </div>
 
-        <div class="about-cta-row about-cta-top">
-          <a class="btn btn-primary" href="/browse">Browse listings</a>
-          <a class="btn" href="/signup?role=host">List your space</a>
-        </div>
-
-        <h1>Every kind of space,<br><em>one easy platform.</em></h1>
-        <p>Kanto brings short-term stays, long-term leases, and rentable spaces into a single marketplace — hosted by owners across the Philippines. Search and book as a guest, or list your own space and manage it from one dashboard.</p>
-
-        <div class="about-features">
-          ${FEATURES.map(
-            (f) => `
-            <div class="about-feature">
-              <span class="about-feature-icon">${icon(f.icon)}</span>
-              <div><strong>${escapeHtml(f.title)}</strong><p>${escapeHtml(f.body)}</p></div>
+        <div class="about-showcase">
+          ${SHOWCASE.map(
+            (s, i) => `
+            <div class="showcase-item">
+              <div class="showcase-num">0${i + 1}</div>
+              <div class="showcase-text">
+                <h3>${escapeHtml(s.title)}</h3>
+                <p>${escapeHtml(s.body)}</p>
+              </div>
+              <div class="showcase-preview">${s.preview}</div>
             </div>`
           ).join('')}
         </div>
-      </div>
-
-      <div class="about-showcase">
-        ${SHOWCASE.map(
-          (s, i) => `
-          <div class="showcase-item">
-            <div class="showcase-num">0${i + 1}</div>
-            <div class="showcase-text">
-              <h3>${escapeHtml(s.title)}</h3>
-              <p>${escapeHtml(s.body)}</p>
-            </div>
-            <div class="showcase-preview">${s.preview}</div>
-          </div>`
-        ).join('')}
       </div>
     </div>
   `;
