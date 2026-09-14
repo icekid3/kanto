@@ -103,10 +103,6 @@ export function aboutView() {
     <div class="about-page">
       <div class="about-hero">
         <div class="about-copy">
-          <div class="about-eyebrow-row" aria-hidden="true">
-            <span>Stays</span><span>Leases</span><span>Spaces</span>
-          </div>
-
           <div class="about-cta-row about-cta-top">
             <a class="btn btn-primary" href="/browse">Browse listings</a>
             <a class="btn" href="/signup?role=host">List your space</a>
