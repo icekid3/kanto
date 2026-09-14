@@ -61,4 +61,23 @@ window.Kanto = window.Kanto || {};
 
   var carousels = document.querySelectorAll('[data-carousel]');
   for (var c = 0; c < carousels.length; c++) initCarousel(carousels[c]);
+
+  // The hero and every snap-section size themselves as "one screen minus
+  // the sticky header" via the --header-h custom property below (see
+  // styles.css). The header's real rendered height (nav padding + button
+  // sizing) doesn't exactly match a hardcoded guess, and even a few
+  // pixels of drift compounds section over section, so each snap lands a
+  // little short/long of a full page instead of exactly on it. Measuring
+  // the header for real and keeping it in sync (font load, resize, nav
+  // wrapping to a second line on narrow screens) keeps every section's
+  // height pixel-accurate to the space actually available beneath it.
+  var header = document.querySelector('header.site');
+  if (header && window.ResizeObserver) {
+    var setHeaderHeight = function () {
+      document.documentElement.style.setProperty('--header-h', header.getBoundingClientRect().height + 'px');
+    };
+    setHeaderHeight();
+    new ResizeObserver(setHeaderHeight).observe(header);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(setHeaderHeight);
+  }
 })();
