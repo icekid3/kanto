@@ -30,6 +30,7 @@ export function layout({ title, user, body, activeNav = '' }) {
       <a class="brand" href="/">Kanto<span>.</span></a>
       <nav class="nav-links">
         <a class="navlink ${activeNav === 'search' ? 'active' : ''}" href="/">Browse</a>
+        <a class="navlink ${activeNav === 'about' ? 'active' : ''}" href="/about">About</a>
         ${user ? `
           <a class="navlink ${activeNav === 'dashboard' ? 'active' : ''}" href="/dashboard">Dashboard</a>
           ${themeToggleButton()}

@@ -13,6 +13,7 @@ import { createUser, authenticate, createSession, destroySession, userFromSessio
 import { charge as chargePayment, refund as refundPayment, payout as payoutPayment, ledgerForBooking, PAYMENT_METHODS } from './lib/payments.js';
 import { layout } from './views/layout.js';
 import { homeView } from './views/home.js';
+import { aboutView } from './views/about.js';
 import { listingView, bookingConfirmedView } from './views/listing.js';
 import { listingFormView } from './views/listingForm.js';
 import { loginView, signupView } from './views/auth.js';
@@ -962,8 +963,9 @@ async function handleLoginPost(req, res) {
   redirect(res, body.next && body.next.startsWith('/') ? body.next : '/dashboard', sessionCookie(token));
 }
 
-async function handleSignupGet(req, res) {
-  render(res, null, signupView({}));
+async function handleSignupGet(req, res, url) {
+  const role = url.searchParams.get('role') === 'host' ? 'host' : '';
+  render(res, null, signupView({ values: role ? { role } : {} }));
 }
 
 async function handleSignupPost(req, res) {
@@ -1129,12 +1131,14 @@ const server = http.createServer(async (req, res) => {
     const inquiryMessageMatch = pathname.match(/^\/inquiries\/([^/]+)\/messages$/);
     if (req.method === 'POST' && inquiryMessageMatch) return handleInquiryMessagePost(req, res, inquiryMessageMatch[1], user);
 
+    if (req.method === 'GET' && pathname === '/about') return render(res, user, aboutView());
+
     if (req.method === 'GET' && pathname === '/terms') return render(res, user, termsView());
     if (req.method === 'GET' && pathname === '/privacy') return render(res, user, privacyView());
 
     if (req.method === 'GET' && pathname === '/login') return handleLoginGet(req, res, url);
     if (req.method === 'POST' && pathname === '/login') return handleLoginPost(req, res);
-    if (req.method === 'GET' && pathname === '/signup') return handleSignupGet(req, res);
+    if (req.method === 'GET' && pathname === '/signup') return handleSignupGet(req, res, url);
     if (req.method === 'POST' && pathname === '/signup') return handleSignupPost(req, res);
     if (req.method === 'POST' && pathname === '/logout') return handleLogout(req, res);
     if (req.method === 'GET' && pathname === '/dashboard') return handleDashboard(req, res, user);

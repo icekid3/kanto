@@ -1,0 +1,142 @@
+// views/about.js — "why Kanto" marketing splash page. Distinct from the
+// functional Browse homepage (views/home.js): this one sells the idea of
+// the platform to a first-time visitor, whichever side they're on, then
+// hands them off to Browse or Sign up. See PHASE-NOTES.md (Phase 15).
+import { escapeHtml } from '../lib/format.js';
+
+const ICON_SEARCH = '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>';
+const ICON_FLOW = '<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>';
+const ICON_DASHBOARD = '<rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/>';
+
+function icon(path, size = 20) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
+}
+
+const FEATURES = [
+  {
+    icon: ICON_SEARCH,
+    title: 'One search, every kind of space',
+    body: 'Short-term stays, long-term leases, and storage or rentable spaces — all in one marketplace instead of three different apps.',
+  },
+  {
+    icon: ICON_FLOW,
+    title: 'A clear path from inquiry to move-in',
+    body: 'Message a host, apply with a verified reference, get approved, then pay — every step tracked in one place for both sides.',
+  },
+  {
+    icon: ICON_DASHBOARD,
+    title: 'Built for owners running a real business',
+    body: 'Hosts manage listings, applications, bookings, and messages from one dashboard — no spreadsheets, no separate booking book.',
+  },
+];
+
+function miniBrowsePreview() {
+  const tiles = [
+    { cls: 'tile-stay', title: 'Sunset Studio, Boracay', price: '₱3,200/night' },
+    { cls: 'tile-lease', title: '2BR Condo, Lahug', price: '₱18,000/mo' },
+    { cls: 'tile-storage', title: 'Drive-Up Storage', price: '₱2,500/mo' },
+  ];
+  return `
+    <div class="mini-grid">
+      ${tiles
+        .map(
+          (t) => `
+        <div class="mini-card">
+          <div class="mini-card-photo ${t.cls}"></div>
+          <div class="mini-card-body">
+            <p class="mini-card-title">${escapeHtml(t.title)}</p>
+            <div class="mini-card-price">${escapeHtml(t.price)}</div>
+          </div>
+        </div>`
+        )
+        .join('')}
+    </div>`;
+}
+
+function miniFlowPreview() {
+  const steps = [
+    { label: 'Message host', done: true },
+    { label: 'Apply & reference check', done: true },
+    { label: 'Approved', done: true },
+    { label: 'Pay & move in', done: false },
+  ];
+  return `
+    <div class="mini-flow">
+      ${steps
+        .map(
+          (s, i) => `
+        ${i > 0 ? '<span class="mini-flow-arrow">&rarr;</span>' : ''}
+        <span class="mini-flow-step ${s.done ? 'done' : ''}"><span class="mini-flow-dot">${s.done ? '✓' : i + 1}</span>${escapeHtml(s.label)}</span>`
+        )
+        .join('')}
+    </div>`;
+}
+
+function miniDashboardPreview() {
+  const stats = [
+    { num: '6', label: 'Active listings' },
+    { num: '3', label: 'Pending applications' },
+    { num: '11', label: 'Bookings this month' },
+    { num: '4.9★', label: 'Avg. host rating' },
+  ];
+  return `
+    <div class="mini-stats">
+      ${stats
+        .map(
+          (s) => `
+        <div class="mini-stat">
+          <div class="mini-stat-num">${escapeHtml(s.num)}</div>
+          <div class="mini-stat-label">${escapeHtml(s.label)}</div>
+        </div>`
+        )
+        .join('')}
+    </div>`;
+}
+
+const SHOWCASE = [
+  { title: 'Search stays, leases & storage', body: 'Filter by city and price across every listing type, side by side.', preview: miniBrowsePreview() },
+  { title: 'Apply, message & book — one flow', body: 'Every conversation and every step of a lease application, tracked end to end.', preview: miniFlowPreview() },
+  { title: 'Run it all from one dashboard', body: 'Listings, applications, bookings, and messages, at a glance.', preview: miniDashboardPreview() },
+];
+
+export function aboutView() {
+  const body = `
+    <div class="about-hero">
+      <div class="about-copy">
+        <span class="about-eyebrow">Stays &middot; Leases &middot; Storage</span>
+        <h1>Every kind of space,<br><em>one easy platform.</em></h1>
+        <p>Kanto brings short-term stays, long-term leases, and storage or rentable spaces into a single marketplace — hosted by owners across the Philippines. Search and book as a guest, or list your own space and manage it from one dashboard.</p>
+
+        <div class="about-features">
+          ${FEATURES.map(
+            (f) => `
+            <div class="about-feature">
+              <span class="about-feature-icon">${icon(f.icon)}</span>
+              <div><strong>${escapeHtml(f.title)}</strong><p>${escapeHtml(f.body)}</p></div>
+            </div>`
+          ).join('')}
+        </div>
+
+        <div class="about-cta-row">
+          <a class="btn btn-primary" href="/">Browse listings</a>
+          <a class="btn" href="/signup?role=host">List your space</a>
+        </div>
+      </div>
+
+      <div class="about-showcase">
+        ${SHOWCASE.map(
+          (s, i) => `
+          <div class="showcase-item">
+            <div class="showcase-num">0${i + 1}</div>
+            <div class="showcase-text">
+              <h3>${escapeHtml(s.title)}</h3>
+              <p>${escapeHtml(s.body)}</p>
+            </div>
+            <div class="showcase-preview">${s.preview}</div>
+          </div>`
+        ).join('')}
+      </div>
+    </div>
+  `;
+  return { title: 'About Kanto', body, activeNav: 'about' };
+}
