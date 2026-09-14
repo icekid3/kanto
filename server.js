@@ -52,7 +52,19 @@ function redirect(res, location, cookie) {
 }
 
 function render(res, currentUser, page, status = 200) {
-  send(res, status, layout({ title: page.title, user: currentUser, body: page.body, activeNav: page.activeNav }));
+  send(
+    res,
+    status,
+    layout({
+      title: page.title,
+      user: currentUser,
+      body: page.body,
+      activeNav: page.activeNav,
+      htmlClass: page.htmlClass,
+      fullBleed: page.fullBleed,
+      extraScript: page.extraScript,
+    })
+  );
 }
 
 async function readBody(req) {

@@ -14,9 +14,9 @@ function themeToggleButton() {
     </button>`;
 }
 
-export function layout({ title, user, body, activeNav = '' }) {
+export function layout({ title, user, body, activeNav = '', htmlClass = '', fullBleed = false, extraScript = '' }) {
   return `<!doctype html>
-<html lang="en">
+<html lang="en"${htmlClass ? ` class="${escapeHtml(htmlClass)}"` : ''}>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -44,7 +44,7 @@ export function layout({ title, user, body, activeNav = '' }) {
       </nav>
     </div>
   </header>
-  <main class="container">
+  <main class="${fullBleed ? 'main-full-bleed' : 'container'}">
     ${body}
   </main>
   <footer class="site">
@@ -54,6 +54,7 @@ export function layout({ title, user, body, activeNav = '' }) {
     </div>
   </footer>
   <script src="/theme.js"></script>
+  ${extraScript ? `<script src="${escapeHtml(extraScript)}"></script>` : ''}
 </body>
 </html>`;
 }
