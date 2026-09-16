@@ -506,7 +506,8 @@ footer.site { border-top: 1px solid var(--border); padding: 22px 0; color: var(-
    on a big monitor the default width left large empty margins on both
    sides while the content itself looked small and cramped. Applied via
    layout()'s mainClass so no other page's width changes. */
-.container.main-wide { max-width: 1360px; }
+.container.main-wide { max-width: 1360px; padding: 0 44px; }
+@media (max-width: 900px) { .container.main-wide { padding: 0 20px; } }
 
 /* Centers the hero block in the space between the sticky header and the
    footer, instead of it sitting flush under the header with a slab of
@@ -524,9 +525,9 @@ footer.site { border-top: 1px solid var(--border); padding: 22px 0; color: var(-
 .about-hero { display: grid; grid-template-columns: 0.85fr 1fr; gap: 46px; align-items: start; margin-top: 2px; }
 @media (max-width: 900px) { .about-hero { grid-template-columns: 1fr; gap: 32px; } }
 
-.about-copy h1 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em; font-size: 2.45rem; line-height: 1.12; margin: 0 0 14px; }
+.about-copy h1 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em; font-size: 2.7rem; line-height: 1.12; margin: 0 0 14px; }
 .about-copy h1 em { font-style: italic; color: var(--accent); font-weight: 700; }
-.about-copy > p { color: var(--muted); font-size: 1.02rem; line-height: 1.5; margin: 0 0 20px; max-width: 54ch; }
+.about-copy > p { color: var(--muted); font-size: 1.08rem; line-height: 1.5; margin: 0 0 20px; max-width: 54ch; }
 
 .about-features { display: flex; flex-direction: column; gap: 13px; margin-bottom: 0; }
 .about-feature { display: flex; align-items: flex-start; gap: 13px; }
@@ -535,11 +536,11 @@ footer.site { border-top: 1px solid var(--border); padding: 22px 0; color: var(-
   display: flex; align-items: center; justify-content: center; color: var(--accent); transition: background-color 0.25s ease;
 }
 .about-feature-icon svg { width: 18px; height: 18px; }
-.about-feature strong { display: block; font-size: 0.96rem; margin-bottom: 2px; }
-.about-feature p { margin: 0; color: var(--muted); font-size: 0.86rem; line-height: 1.38; }
+.about-feature strong { display: block; font-size: 1.02rem; margin-bottom: 2px; }
+.about-feature p { margin: 0; color: var(--muted); font-size: 0.92rem; line-height: 1.38; }
 
 .about-cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
-.about-cta-row .btn { padding: 13px 25px; font-size: 0.98rem; }
+.about-cta-row .btn { padding: 13px 25px; font-size: 1.02rem; }
 /* Moved above the headline and centered, per request -- a wider gap
    between the two buttons than the default row uses elsewhere. */
 .about-cta-top { justify-content: center; gap: 28px; margin-bottom: 22px; }
@@ -555,8 +556,8 @@ footer.site { border-top: 1px solid var(--border); padding: 22px 0; color: var(-
   display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.82rem; font-family: var(--font-display);
 }
 .showcase-text { grid-row: 1; }
-.showcase-text h3 { margin: 2px 0 2px; font-size: 1.04rem; letter-spacing: -0.01em; }
-.showcase-text p { margin: 0; color: var(--muted); font-size: 0.88rem; line-height: 1.4; }
+.showcase-text h3 { margin: 2px 0 2px; font-size: 1.1rem; letter-spacing: -0.01em; }
+.showcase-text p { margin: 0; color: var(--muted); font-size: 0.92rem; line-height: 1.4; }
 .showcase-preview { grid-column: 1 / -1; background: var(--surface-2); border-radius: 13px; padding: 11px; transition: background-color 0.25s ease; }
 
 /* mini "browse grid" preview */
@@ -564,8 +565,8 @@ footer.site { border-top: 1px solid var(--border); padding: 22px 0; color: var(-
 .mini-card { background: var(--surface); border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-card); transition: background-color 0.25s ease; }
 .mini-card-photo { height: 32px; display: flex; align-items: center; justify-content: center; }
 .mini-card-body { padding: 7px 8px 8px; }
-.mini-card-title { font-size: 0.78rem; font-weight: 600; line-height: 1.25; margin: 0 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.mini-card-price { font-size: 0.76rem; font-weight: 700; color: var(--ink); }
+.mini-card-title { font-size: 0.82rem; font-weight: 600; line-height: 1.25; margin: 0 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mini-card-price { font-size: 0.8rem; font-weight: 700; color: var(--ink); }
 
 /* mini "application/booking flow" preview */
 .mini-flow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -580,8 +581,8 @@ footer.site { border-top: 1px solid var(--border); padding: 22px 0; color: var(-
 /* mini "host dashboard" preview */
 .mini-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
 .mini-stat { background: var(--surface); border-radius: 10px; padding: 8px 5px; text-align: center; box-shadow: var(--shadow-card); transition: background-color 0.25s ease; }
-.mini-stat-num { font-family: var(--font-display); font-weight: 700; font-size: 1rem; line-height: 1.1; }
-.mini-stat-label { color: var(--muted); font-size: 0.7rem; margin-top: 2px; }
+.mini-stat-num { font-family: var(--font-display); font-weight: 700; font-size: 1.08rem; line-height: 1.1; }
+.mini-stat-label { color: var(--muted); font-size: 0.74rem; margin-top: 2px; }
 
 @media (max-width: 560px) {
   .about-copy h1 { font-size: 1.95rem; }
