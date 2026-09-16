@@ -14,7 +14,7 @@ function themeToggleButton() {
     </button>`;
 }
 
-export function layout({ title, user, body, activeNav = '', htmlClass = '', fullBleed = false, extraScript = '' }) {
+export function layout({ title, user, body, activeNav = '', htmlClass = '', fullBleed = false, mainClass = '', extraScript = '' }) {
   return `<!doctype html>
 <html lang="en"${htmlClass ? ` class="${escapeHtml(htmlClass)}"` : ''}>
 <head>
@@ -44,7 +44,7 @@ export function layout({ title, user, body, activeNav = '', htmlClass = '', full
       </nav>
     </div>
   </header>
-  <main class="${fullBleed ? 'main-full-bleed' : 'container'}">
+  <main class="${fullBleed ? 'main-full-bleed' : 'container'}${mainClass ? ' ' + escapeHtml(mainClass) : ''}">
     ${body}
   </main>
   <footer class="site">

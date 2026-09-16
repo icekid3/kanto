@@ -62,6 +62,7 @@ function render(res, currentUser, page, status = 200) {
       activeNav: page.activeNav,
       htmlClass: page.htmlClass,
       fullBleed: page.fullBleed,
+      mainClass: page.mainClass,
       extraScript: page.extraScript,
     })
   );

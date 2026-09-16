@@ -138,5 +138,5 @@ export function aboutView() {
       </div>
     </div>
   `;
-  return { title: 'Kanto', body };
+  return { title: 'Kanto', body, mainClass: 'main-wide' };
 }
